@@ -3,7 +3,7 @@
  * Plugin Name: Custom Projects Management
  * Plugin URI:  https://antigravity.google
  * Description: Registers a custom post type for Projects and provides a settings page to define dynamic attributes (Location, Materials, etc.) along with a photo gallery. Optimized for Bricks Builder.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Antigravity
  * Text Domain: custom-projects
  */
@@ -196,6 +196,23 @@ class Custom_Projects_Plugin {
 
                 <?php submit_button(); ?>
             </form>
+
+            <hr>
+            <h2><?php _e( 'Plugin Changelog', 'custom-projects'); ?></h2>
+            <div style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); max-width: 800px;">
+                <h3 style="margin-top: 0;">v1.2.0 - <?php echo date('Y-m-d'); ?></h3>
+                <ul style="list-style-type: disc; margin-left: 20px;">
+                    <li><strong>Feature:</strong> Added a live changelog tracking system to the backend settings.</li>
+                    <li><strong>Integration:</strong> Integrated the YahnisElsts <code>plugin-update-checker</code> SDK to enable instant automatic push updates via GitHub API.</li>
+                    <li><strong>Bugfix:</strong> Completely rebuilt the Bricks Builder inline text replacement engine utilizing <code>preg_match_all</code> Regex compilers for perfect substring extraction.</li>
+                </ul>
+                <hr style="margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #646970;">v1.1.0</h3>
+                <ul style="list-style-type: disc; margin-left: 20px; color: #646970;">
+                    <li><strong>Feature:</strong> Introduced the Bulk CSV Importer engine with dynamic template allocation.</li>
+                    <li><strong>Fix:</strong> Corrected the Secondary Featured Image template parsing logic to securely bind native Attachment Object arrays back to Bricks context handlers.</li>
+                </ul>
+            </div>
         </div>
         <?php
     }
