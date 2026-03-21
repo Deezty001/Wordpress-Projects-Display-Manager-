@@ -13,8 +13,8 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
     category: 'Hero',
     website: '',
     content: '',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200&h=800',
-    demoUrl: 'https://bricksbuilder.io/'
+    imageUrl: '',
+    demoUrl: ''
   });
 
   const categories = ['Hero', 'Pricing', 'Grid', 'Forms', 'Features', 'Testimonials', 'Header', 'Footer'];
@@ -85,6 +85,29 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
                 style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
                 value={formData.website}
                 onChange={e => setFormData({ ...formData, website: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Preview Image URL</label>
+              <input 
+                type="url" 
+                placeholder="https://example.com/image.jpg"
+                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
+                value={formData.imageUrl}
+                onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Live Demo URL</label>
+              <input 
+                type="url" 
+                placeholder="https://example.com/demo"
+                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
+                value={formData.demoUrl}
+                onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
               />
             </div>
           </div>
