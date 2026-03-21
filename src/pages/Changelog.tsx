@@ -1,4 +1,4 @@
-import { GitBranch, Clock, Star, Zap } from 'lucide-react';
+import { Clock, Zap } from 'lucide-react';
 
 export function Changelog() {
   const updates = [

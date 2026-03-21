@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Rocket, Shield, Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Layers, Rocket, Shield, Zap, ArrowRight } from 'lucide-react';
 
 export function Home() {
   return (
