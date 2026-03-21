@@ -19,92 +19,75 @@ export function TemplateModal({ template, onClose }: TemplateModalProps) {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 100,
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'rgba(11, 12, 16, 0.9)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-    }}>
+    <div className="fixed inset-0 z-[200] flex flex-col bg-zinc-950/95 backdrop-blur-2xl animate-fade-in">
       {/* Top Toolbar */}
-      <div style={{
-        height: '64px',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 2rem',
-        background: 'var(--bg-secondary)'
-      }}>
+      <div className="h-16 shrink-0 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50">
         {/* Left: Template Info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 600 }}>{template.title}</h2>
-          <span className="glass-pill" style={{ background: 'var(--accent-glow)', color: '#fff', borderColor: 'transparent' }}>
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-bold tracking-tight text-white">{template.title}</h2>
+          <span className="px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-[10px] font-bold uppercase tracking-widest text-accent">
             {template.category}
           </span>
         </div>
 
         {/* Center: Viewport Controls */}
-        <div style={{ display: 'flex', background: 'var(--bg-color)', borderRadius: 'var(--radius-full)', padding: '4px', border: '1px solid var(--border-color)' }}>
+        <div className="flex bg-zinc-950 p-1 rounded-xl border border-zinc-800">
           <button 
             onClick={() => setViewport('desktop')}
-            style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', background: viewport === 'desktop' ? 'var(--bg-secondary)' : 'transparent', color: viewport === 'desktop' ? '#fff' : 'var(--text-secondary)' }}
+            className={`p-2 rounded-lg transition-all ${viewport === 'desktop' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             <Monitor size={18} />
           </button>
           <button 
             onClick={() => setViewport('tablet')}
-            style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', background: viewport === 'tablet' ? 'var(--bg-secondary)' : 'transparent', color: viewport === 'tablet' ? '#fff' : 'var(--text-secondary)' }}
+            className={`p-2 rounded-lg transition-all ${viewport === 'tablet' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             <Tablet size={18} />
           </button>
           <button 
             onClick={() => setViewport('mobile')}
-            style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', background: viewport === 'mobile' ? 'var(--bg-secondary)' : 'transparent', color: viewport === 'mobile' ? '#fff' : 'var(--text-secondary)' }}
+            className={`p-2 rounded-lg transition-all ${viewport === 'mobile' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             <Smartphone size={18} />
           </button>
         </div>
 
         {/* Right: Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="flex items-center gap-3">
           <a 
             href={template.demoUrl} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="glass-pill"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 text-sm font-semibold hover:bg-zinc-700 hover:text-white transition-all active:scale-95"
           >
-            Open Original <ExternalLink size={14} />
+            Open <ExternalLink size={14} />
           </a>
           <button 
             onClick={onClose}
-            className="glass-pill"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', padding: 0 }}
+            className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
       </div>
 
       {/* Preview Area */}
-      <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', padding: '2rem', overflow: 'hidden' }}>
-        <div style={{
-          width: viewportWidths[viewport],
-          height: '100%',
-          background: '#fff',
-          borderRadius: viewport === 'desktop' ? 'var(--radius-lg)' : '2rem',
-          border: viewport === 'desktop' ? 'none' : '12px solid #222',
-          overflow: 'hidden',
-          transition: 'width var(--transition-normal), border-radius var(--transition-normal)',
-          boxShadow: 'var(--shadow-lg)'
-        }}>
+      <div className="flex-1 p-8 flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,_#18181b_0%,_#09090b_100%)]">
+        <div 
+          className="bg-white shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.16, 1, 0.3, 1)] overflow-hidden relative"
+          style={{
+            width: viewportWidths[viewport],
+            height: '100%',
+            borderRadius: viewport === 'desktop' ? '0px' : '32px',
+            border: viewport === 'desktop' ? 'none' : '12px solid #1c1c1f',
+          }}
+        >
+          {viewport !== 'desktop' && (
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#1c1c1f] rounded-b-2xl z-20" />
+          )}
           <iframe 
             src={template.demoUrl} 
-            style={{ width: '100%', height: '100%', border: 'none' }}
+            className="w-full h-full border-none"
             title={`Demo of ${template.title}`}
           />
         </div>

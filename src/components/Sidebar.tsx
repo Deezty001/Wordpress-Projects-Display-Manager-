@@ -22,96 +22,57 @@ export function Sidebar({
   onToggleTrash
 }: SidebarProps) {
   return (
-    <aside className="glass-panel" style={{ width: '300px', flexShrink: 0, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-        <Filter size={20} color="var(--accent-secondary)" />
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Filters</h2>
+    <aside className="w-[280px] shrink-0 p-6 flex flex-col gap-8 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 backdrop-blur-xl shadow-lg overflow-y-auto hide-scrollbar">
+      <div className="flex items-center gap-3 mb-2">
+        <Filter className="w-5 h-5 text-accent" />
+        <h2 className="text-xl font-semibold tracking-tight">Filters</h2>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Website</label>
-        <div style={{ position: 'relative' }}>
+      <div className="flex flex-col gap-3">
+        <label className="text-sm font-medium text-zinc-400">Website</label>
+        <div className="relative group">
           <select 
             value={selectedWebsite}
             onChange={(e) => onSelectWebsite(e.target.value)}
-            style={{
-              width: '100%',
-              appearance: 'none',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)',
-              padding: '0.75rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.95rem',
-              cursor: 'pointer',
-              outline: 'none',
-              transition: 'border-color var(--transition-fast)'
-            }}
-            onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
-            onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+            className="w-full appearance-none bg-zinc-950/50 border border-zinc-800 text-zinc-200 px-4 py-3 rounded-xl text-sm outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent hover:border-zinc-700 cursor-pointer"
           >
             {websites.map(site => (
-              <option key={site} value={site}>{site}</option>
+              <option key={site} value={site} className="bg-zinc-900 text-zinc-100">{site}</option>
             ))}
           </select>
-          <ChevronDown size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-secondary)' }} />
+          <ChevronDown className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500 group-hover:text-zinc-400 transition-colors" />
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Category</label>
-        <div style={{ position: 'relative' }}>
+      <div className="flex flex-col gap-3">
+        <label className="text-sm font-medium text-zinc-400">Category</label>
+        <div className="relative group">
           <select 
             value={selectedCategory}
             onChange={(e) => onSelectCategory(e.target.value)}
             disabled={isTrashView}
-            style={{
-              width: '100%',
-              appearance: 'none',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)',
-              padding: '0.75rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.95rem',
-              cursor: isTrashView ? 'not-allowed' : 'pointer',
-              outline: 'none',
-              opacity: isTrashView ? 0.5 : 1,
-              transition: 'border-color var(--transition-fast)'
-            }}
-            onFocus={(e) => !isTrashView && (e.target.style.borderColor = 'var(--accent-primary)')}
-            onBlur={(e) => !isTrashView && (e.target.style.borderColor = 'var(--border-color)')}
+            className={`w-full appearance-none bg-zinc-950/50 border border-zinc-800 text-zinc-200 px-4 py-3 rounded-xl text-sm outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent hover:border-zinc-700 ${isTrashView ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat} className="bg-zinc-900 text-zinc-100">{cat}</option>
             ))}
           </select>
-          <ChevronDown size={18} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-secondary)' }} />
+          <ChevronDown className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500 group-hover:text-zinc-400 transition-colors" />
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
+      <div className="mt-auto pt-6 border-t border-zinc-800/60">
         <button
           onClick={onToggleTrash}
-          className="glass-pill"
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            padding: '0.75rem',
-            background: isTrashView ? 'rgba(255,100,100,0.1)' : 'transparent',
-            color: isTrashView ? '#ffaaaa' : 'var(--text-secondary)',
-            border: isTrashView ? '1px solid rgba(255,100,100,0.2)' : '1px solid var(--border-color)',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-medium transition-all ${
+            isTrashView 
+              ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' 
+              : 'bg-zinc-800/30 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200'
+          }`}
         >
           {isTrashView ? 'Exit Trash View' : 'View Trash'}
         </button>
       </div>
-
     </aside>
   );
 }

@@ -18,7 +18,6 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
   });
 
   const categories = ['Hero', 'Pricing', 'Grid', 'Forms', 'Features', 'Testimonials', 'Header', 'Footer'];
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,149 +25,125 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
     if (!formData.title || !formData.content) return;
     setIsSubmitting(true);
     await onAdd(formData);
-    setIsSubmitting(false); // In case it fails, we stop loading
+    setIsSubmitting(false);
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 110,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'rgba(11, 12, 16, 0.8)',
-      backdropFilter: 'blur(8px)',
-      padding: '2rem'
-    }}>
-      <div className="glass-card" style={{ 
-        width: '100%', 
-        maxWidth: '600px', 
-        maxHeight: '90vh', 
-        overflowY: 'auto',
-        position: 'relative',
-        padding: '2rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Add New Template</h2>
-          <button onClick={onClose} className="glass-pill" style={{ padding: '0.5rem' }}>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-zinc-950/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in">
+      <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl overflow-hidden animate-slide-up">
+        {/* Header */}
+        <div className="flex justify-between items-center px-8 py-6 border-b border-zinc-800 bg-zinc-900/50">
+          <h2 className="text-2xl font-bold tracking-tight text-white">Add New Template</h2>
+          <button 
+            onClick={onClose} 
+            className="p-2 rounded-xl border border-zinc-800 bg-zinc-950/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90"
+          >
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Title</label>
-            <input 
-              type="text" 
-              required
-              placeholder="e.g. Modern Landing Hero"
-              style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-              value={formData.title}
-              onChange={e => setFormData({ ...formData, title: e.target.value })}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Category</label>
-              <select 
-                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                value={formData.category}
-                onChange={e => setFormData({ ...formData, category: e.target.value })}
-              >
-                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-              </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Website Origin</label>
+        {/* Form Container */}
+        <div className="max-h-[75vh] overflow-y-auto p-8 hide-scrollbar">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-zinc-400 ml-1">Title</label>
               <input 
                 type="text" 
-                placeholder="e.g. acme-web.com"
-                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                value={formData.website}
-                onChange={e => setFormData({ ...formData, website: e.target.value })}
+                required
+                placeholder="e.g. Modern Landing Hero"
+                className="w-full px-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-200 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent placeholder:text-zinc-600"
+                value={formData.title}
+                onChange={e => setFormData({ ...formData, title: e.target.value })}
               />
             </div>
-          </div>
 
-          <details style={{ width: '100%' }}>
-            <summary style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', cursor: 'pointer', outline: 'none' }}>
-              Manual Overrides (Skip if using Auto-Generate)
-            </summary>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Preview Image URL</label>
-                <input 
-                  type="url" 
-                  placeholder="https://example.com/image.jpg"
-                  style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                  value={formData.imageUrl}
-                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-zinc-400 ml-1">Category</label>
+                <div className="relative">
+                  <select 
+                    className="w-full appearance-none px-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-200 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent cursor-pointer"
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    {categories.map(cat => <option key={cat} value={cat} className="bg-zinc-900 text-zinc-100">{cat}</option>)}
+                  </select>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Live Demo URL</label>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-zinc-400 ml-1">Website Origin</label>
                 <input 
-                  type="url" 
-                  placeholder="https://example.com/demo"
-                  style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                  value={formData.demoUrl}
-                  onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
+                  type="text" 
+                  placeholder="e.g. acme-web.com"
+                  className="w-full px-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-200 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent placeholder:text-zinc-600"
+                  value={formData.website}
+                  onChange={e => setFormData({ ...formData, website: e.target.value })}
                 />
               </div>
             </div>
-          </details>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Bricks Template Code (JSON)</label>
-            <textarea 
-              required
-              rows={8}
-              placeholder='Paste your Bricks JSON here...'
-              style={{ 
-                padding: '0.75rem 1rem', 
-                borderRadius: 'var(--radius-md)', 
-                background: 'var(--bg-color)', 
-                border: '1px solid var(--border-color)', 
-                color: '#fff',
-                fontFamily: 'monospace',
-                fontSize: '0.875rem'
-              }}
-              value={formData.content}
-              onChange={e => setFormData({ ...formData, content: e.target.value })}
-            />
-          </div>
+            <details className="group border border-zinc-800/60 rounded-xl bg-zinc-800/10 overflow-hidden transition-all duration-300">
+              <summary className="flex items-center gap-2 p-4 text-xs font-bold uppercase tracking-widest text-zinc-500 cursor-pointer hover:text-zinc-300 transition-colors list-none select-none">
+                <Plus size={14} className="group-open:rotate-45 transition-transform" />
+                Manual Overrides
+              </summary>
+              <div className="p-4 pt-0 grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 ml-1">Preview Image URL</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-300 outline-none focus:border-accent transition-all"
+                    value={formData.imageUrl}
+                    onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 ml-1">Live Demo URL</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://example.com/demo"
+                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-sm text-zinc-300 outline-none focus:border-accent transition-all"
+                    value={formData.demoUrl}
+                    onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
+                  />
+                </div>
+              </div>
+            </details>
 
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="glass-pill" 
-            style={{ 
-              marginTop: '1rem', 
-              padding: '1rem', 
-              background: isSubmitting ? 'var(--bg-secondary)' : 'var(--accent-glow)', 
-              color: '#fff', 
-              border: 'none', 
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="spin" size={20} /> Generating Preview & Demo ✨
-              </>
-            ) : (
-              <>
-                <Plus size={20} /> Add Template
-              </>
-            )}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-zinc-400 ml-1">Bricks Template Code (JSON)</label>
+              <textarea 
+                required
+                rows={6}
+                placeholder="Paste your Bricks JSON here..."
+                className="w-full px-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-zinc-200 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent font-monospace text-sm resize-none placeholder:text-zinc-600"
+                value={formData.content}
+                onChange={e => setFormData({ ...formData, content: e.target.value })}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-all shadow-lg active:scale-95 ${
+                isSubmitting 
+                  ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed shadow-none' 
+                  : 'bg-accent text-white hover:bg-accent/90 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]'
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} /> Generating Preview ✨
+                </>
+              ) : (
+                <>
+                  <Plus size={20} /> Add to Vault
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

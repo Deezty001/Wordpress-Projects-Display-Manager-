@@ -107,40 +107,29 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100 font-sans selection:bg-accent selection:text-white">
       {/* Header */}
-      <header className="glass-panel" style={{ margin: '1rem', padding: '1.25rem 2rem', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ background: 'var(--accent-glow)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
-            <Layers size={24} color="var(--accent-secondary)" />
+      <header className="m-4 px-8 py-5 rounded-2xl flex items-center justify-between gap-4 border border-zinc-800/60 bg-zinc-900/40 backdrop-blur-xl shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="bg-accent-glow p-3 rounded-xl border border-accent/20">
+            <Layers className="w-6 h-6 text-accent" />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Bricks Vault</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Your premium component library</p>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Bricks Vault</h1>
+            <p className="text-sm text-zinc-400 font-medium">Your premium component library</p>
           </div>
         </div>
         
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="glass-pill"
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem', 
-            padding: '0.75rem 1.5rem',
-            background: 'var(--accent-glow)',
-            color: '#fff',
-            border: 'none',
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}
+          className="flex items-center gap-2 px-5 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent/90 transition-all active:scale-95 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]"
         >
-          <Plus size={20} /> New Template
+          <Plus className="w-5 h-5" /> New Template
         </button>
       </header>
 
       {/* Main Layout */}
-      <main className="app-main">
+      <main className="flex-1 flex gap-6 px-4 pb-4 overflow-hidden relative">
         <Sidebar 
           websites={websites} 
           categories={categories}
@@ -151,26 +140,29 @@ export default function App() {
           isTrashView={isTrashView}
           onToggleTrash={() => setIsTrashView(!isTrashView)}
         />
-        {isLoading ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
-            <Loader2 className="spin" size={40} color="var(--accent-secondary)" />
-            <p>Accessing the vault...</p>
-          </div>
-        ) : error ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: '#ff4b4b' }}>
-            <AlertCircle size={40} />
-            <p>{error}</p>
-            <button onClick={() => window.location.reload()} className="glass-pill" style={{ marginTop: '1rem' }}>Retry</button>
-          </div>
-        ) : (
-          <TemplateGrid 
-            templates={filteredTemplates} 
-            onSelectTemplate={setActiveTemplate} 
-            onDeleteTemplate={handleDeleteTemplate}
-            onRestoreTemplate={handleRestoreTemplate}
-            isTrashView={isTrashView}
-          />
-        )}
+        
+        <div className="flex-1 relative overflow-y-auto hide-scrollbar scroll-smooth pr-2">
+          {isLoading ? (
+            <div className="flex-1 h-full flex flex-col items-center justify-center gap-4 text-zinc-500">
+              <Loader2 className="w-10 h-10 animate-spin text-accent" />
+              <p className="font-medium animate-pulse">Accessing the vault...</p>
+            </div>
+          ) : error ? (
+            <div className="flex-1 h-full flex flex-col items-center justify-center gap-4 text-red-400">
+              <AlertCircle className="w-10 h-10" />
+              <p className="font-medium">{error}</p>
+              <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 rounded-full border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-colors">Retry</button>
+            </div>
+          ) : (
+            <TemplateGrid 
+              templates={filteredTemplates} 
+              onSelectTemplate={setActiveTemplate} 
+              onDeleteTemplate={handleDeleteTemplate}
+              onRestoreTemplate={handleRestoreTemplate}
+              isTrashView={isTrashView}
+            />
+          )}
+        </div>
       </main>
 
       {/* Add Template Modal */}

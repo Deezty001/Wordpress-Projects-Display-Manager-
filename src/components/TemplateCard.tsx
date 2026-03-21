@@ -11,7 +11,6 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashView }: TemplateCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -23,35 +22,15 @@ export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashVi
 
   return (
     <div 
-      className="glass-panel"
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        overflow: 'hidden',
-        cursor: 'pointer',
-        transition: 'transform var(--transition-normal), box-shadow var(--transition-normal)',
-        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-        boxShadow: isHovered ? 'var(--shadow-glow)' : 'var(--shadow-md)',
-        position: 'relative'
-      }}
+      className="group relative bg-zinc-900/40 border border-zinc-800/60 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:translate-y-[-4px] hover:border-accent/40 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.1)]"
     >
       {/* Action Buttons Top Right */}
-      <div style={{
-        position: 'absolute',
-        top: '1rem',
-        right: '1rem',
-        zIndex: 10,
-        display: 'flex',
-        gap: '0.5rem',
-        opacity: isHovered ? 1 : 0,
-        transition: 'opacity 0.2s'
-      }}>
+      <div className="absolute top-3 right-3 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         {!isTrashView && (
           <button 
             onClick={handleCopy}
-            className="glass-pill" 
-            style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff' }}
+            className="p-2 rounded-xl bg-zinc-950/60 backdrop-blur-md border border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
             title="Copy Bricks Code"
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -62,17 +41,15 @@ export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashVi
           <>
             <button 
               onClick={(e) => onRestore(template.id, e)}
-              className="glass-pill" 
-              style={{ padding: '0.5rem', background: 'rgba(100,255,100,0.2)', border: 'none', color: '#aaffaa' }}
+              className="p-2 rounded-xl bg-emerald-500/20 backdrop-blur-md border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
               title="Restore Template"
             >
               <RefreshCw size={16} />
             </button>
             <button 
               onClick={(e) => onDelete(template.id, e)}
-              className="glass-pill" 
-              style={{ padding: '0.5rem', background: 'rgba(255,50,50,0.4)', border: 'none', color: '#ffaaaa' }}
-              title="Permanently Delete (Destroys Rendered Pages too)"
+              className="p-2 rounded-xl bg-red-500/20 backdrop-blur-md border border-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+              title="Permanently Delete"
             >
               <AlertTriangle size={16} />
             </button>
@@ -80,8 +57,7 @@ export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashVi
         ) : (
           <button 
             onClick={(e) => onDelete(template.id, e)}
-            className="glass-pill" 
-            style={{ padding: '0.5rem', background: 'rgba(255,100,100,0.2)', border: 'none', color: '#ffaaaa' }}
+            className="p-2 rounded-xl bg-red-500/20 backdrop-blur-md border border-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
             title="Move to Trash"
           >
             <Trash2 size={16} />
@@ -89,54 +65,46 @@ export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashVi
         )}
       </div>
 
-      {/* Image Container */}
-      <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
+      {/* Preview Container */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
         <iframe 
           src={template.demoUrl}
           title={template.title}
           loading="lazy"
           scrolling="no"
+          className="absolute origin-top-left pointer-events-none transition-all duration-700 ease-in-out group-hover:opacity-40 group-hover:scale-[0.26]"
           style={{ 
             width: '1280px', 
-            height: '880px', 
+            height: '800px', 
             border: 'none',
-            transform: isHovered ? 'scale(0.26)' : 'scale(0.25)', 
-            transformOrigin: 'top left',
-            pointerEvents: 'none',
-            transition: 'transform 0.5s ease, opacity 0.5s ease',
-            opacity: isHovered ? 0.5 : 1
+            transform: 'scale(0.25)', 
           }}
         />
         
-        {/* Overlay on hover */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(11, 12, 16, 0.4)',
-          opacity: isHovered ? 1 : 0,
-          transition: 'opacity var(--transition-normal)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-pill" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.95rem' }}>
-            <Eye size={18} />
-            View Demo
+        {/* Play Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-zinc-950 text-sm font-bold shadow-xl">
+            <Eye size={16} />
+            Preview
           </div>
         </div>
       </div>
 
-      {/* Card Content */}
-      <div style={{ padding: '1.25rem' }}>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '0.75rem' }}>{template.title}</h3>
+      {/* Card Info */}
+      <div className="p-5">
+        <h3 className="text-zinc-100 font-bold text-lg mb-3 tracking-tight group-hover:text-accent transition-colors truncate">
+          {template.title}
+        </h3>
         
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <span className="glass-pill" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Globe size={14} />
+        <div className="flex flex-wrap gap-2">
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-800/40 border border-zinc-700/50 text-xs font-semibold text-zinc-400">
+            <Globe size={12} className="text-accent" />
             {template.website}
           </span>
-          <span className="glass-pill" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Tag size={14} />
+          <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-800/40 border border-zinc-700/50 text-xs font-semibold text-zinc-400">
+            <Tag size={12} className="text-accent" />
             {template.category}
           </span>
         </div>
