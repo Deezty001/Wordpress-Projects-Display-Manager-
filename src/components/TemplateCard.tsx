@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Eye, Globe, Tag, Copy, Trash2, Check } from 'lucide-react';
+import { Eye, Globe, Tag, Copy, Trash2, Check, RefreshCw, AlertTriangle } from 'lucide-react';
 import type { Template } from '../data/mockData';
 
 interface TemplateCardProps {
   template: Template;
   onClick: () => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
+  onRestore?: (id: string, e: React.MouseEvent) => void;
+  isTrashView?: boolean;
 }
 
-export function TemplateCard({ template, onClick, onDelete }: TemplateCardProps) {
+export function TemplateCard({ template, onClick, onDelete, onRestore, isTrashView }: TemplateCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -45,22 +47,46 @@ export function TemplateCard({ template, onClick, onDelete }: TemplateCardProps)
         opacity: isHovered ? 1 : 0,
         transition: 'opacity 0.2s'
       }}>
-        <button 
-          onClick={handleCopy}
-          className="glass-pill" 
-          style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff' }}
-          title="Copy Bricks Code"
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-        </button>
-        <button 
-          onClick={(e) => onDelete(template.id, e)}
-          className="glass-pill" 
-          style={{ padding: '0.5rem', background: 'rgba(255,100,100,0.2)', border: 'none', color: '#ffaaaa' }}
-          title="Delete Template"
-        >
-          <Trash2 size={16} />
-        </button>
+        {!isTrashView && (
+          <button 
+            onClick={handleCopy}
+            className="glass-pill" 
+            style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff' }}
+            title="Copy Bricks Code"
+          >
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+          </button>
+        )}
+        
+        {isTrashView && onRestore ? (
+          <>
+            <button 
+              onClick={(e) => onRestore(template.id, e)}
+              className="glass-pill" 
+              style={{ padding: '0.5rem', background: 'rgba(100,255,100,0.2)', border: 'none', color: '#aaffaa' }}
+              title="Restore Template"
+            >
+              <RefreshCw size={16} />
+            </button>
+            <button 
+              onClick={(e) => onDelete(template.id, e)}
+              className="glass-pill" 
+              style={{ padding: '0.5rem', background: 'rgba(255,50,50,0.4)', border: 'none', color: '#ffaaaa' }}
+              title="Permanently Delete (Destroys Rendered Pages too)"
+            >
+              <AlertTriangle size={16} />
+            </button>
+          </>
+        ) : (
+          <button 
+            onClick={(e) => onDelete(template.id, e)}
+            className="glass-pill" 
+            style={{ padding: '0.5rem', background: 'rgba(255,100,100,0.2)', border: 'none', color: '#ffaaaa' }}
+            title="Move to Trash"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
 
       {/* Image Container */}

@@ -33,6 +33,13 @@ db.exec(`
   )
 `);
 
+// Add isTrashed column if missing
+try {
+  db.exec('ALTER TABLE templates ADD COLUMN isTrashed INTEGER DEFAULT 0');
+} catch (e) {
+  // Ignore, column exists
+}
+
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
@@ -53,7 +60,7 @@ app.post('/api/templates', async (req, res) => {
     const wpRenderSecret = process.env.WP_RENDER_SECRET || 'default-secret';
     
     // Auto-generate preview & demo if the Render Server is configured
-    if (wpRenderUrl) {
+    if (wpRenderUrl && !demoUrl) {
       console.log('Generating automated demo via Render Server...');
       const wpResponse = await fetch(wpRenderUrl, {
         method: 'POST',
@@ -65,7 +72,7 @@ app.post('/api/templates', async (req, res) => {
       
       if (wpData.success && wpData.url) {
         demoUrl = wpData.url;
-        imageUrl = wpData.url;
+        imageUrl = wpData.url; // Use demoUrl as imageUrl for backwards compatibility
         console.log('Demo generated:', demoUrl);
       } else {
         console.error('WP Render Server returned an error:', wpData);
@@ -73,8 +80,8 @@ app.post('/api/templates', async (req, res) => {
     }
 
     const stmt = db.prepare(`
-      INSERT OR REPLACE INTO templates (id, title, category, website, content, imageUrl, demoUrl, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO templates (id, title, category, website, content, imageUrl, demoUrl, createdAt, isTrashed)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
     `);
     stmt.run(id, title, category, website, content, imageUrl, demoUrl, createdAt);
     
@@ -86,11 +93,53 @@ app.post('/api/templates', async (req, res) => {
   }
 });
 
+// Soft Delete (Trash)
 app.delete('/api/templates/:id', (req, res) => {
   const { id } = req.params;
   try {
+    db.prepare('UPDATE templates SET isTrashed = 1 WHERE id = ?').run(id);
+    res.json({ message: 'Sent to trash' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Restore from Trash
+app.post('/api/templates/:id/restore', (req, res) => {
+  const { id } = req.params;
+  try {
+    db.prepare('UPDATE templates SET isTrashed = 0 WHERE id = ?').run(id);
+    res.json({ message: 'Restored successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Permanent Delete
+app.delete('/api/templates/:id/permanent', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Look up the URL first
+    const template = db.prepare('SELECT demoUrl FROM templates WHERE id = ?').get(id);
+    const wpRenderUrl = process.env.WP_RENDER_URL;
+
+    // Contact WordPress Render Server to permanently wipe the orphan page
+    if (template && template.demoUrl && wpRenderUrl) {
+      console.log('Wiping orphaned WordPress page:', template.demoUrl);
+      try {
+        const deleteUrl = wpRenderUrl.replace('/generate', '/delete');
+        await fetch(deleteUrl, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: template.demoUrl })
+        });
+      } catch (err) {
+        console.error('Failed to reach WP server for deletion:', err);
+      }
+    }
+
     db.prepare('DELETE FROM templates WHERE id = ?').run(id);
-    res.json({ message: 'Deleted successfully' });
+    res.json({ message: 'Permanently deleted' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

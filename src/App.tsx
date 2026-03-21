@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Layers, Plus, Loader2, AlertCircle } from 'lucide-react';
-import { fetchTemplates, createTemplate, removeTemplate } from './data/mockData';
+import { fetchTemplates, createTemplate, removeTemplate, restoreTemplate, permanentDeleteTemplate } from './data/mockData';
 import { Sidebar } from './components/Sidebar';
 import { TemplateGrid } from './components/TemplateGrid';
 import { TemplateModal } from './components/TemplateModal';
@@ -15,6 +15,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isTrashView, setIsTrashView] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -35,23 +36,30 @@ export default function App() {
 
   const filteredTemplates = useMemo(() => {
     return templates.filter(t => {
+      // Is it in the correct bin?
+      const isInCurrentBin = isTrashView ? t.isTrashed === 1 : (t.isTrashed === 0 || !t.isTrashed);
+      if (!isInCurrentBin) return false;
+
+      // Skip website/category filters if in Trash view for easier viewing, OR apply them
+      if (isTrashView) return true;
+
       const matchWebsite = selectedWebsite === 'All' || t.website === selectedWebsite;
       const matchCategory = selectedCategory === 'All' || t.category === selectedCategory;
       return matchWebsite && matchCategory;
     });
-  }, [templates, selectedWebsite, selectedCategory]);
+  }, [templates, selectedWebsite, selectedCategory, isTrashView]);
 
   const handleAddTemplate = async (newTemplate: Omit<Template, 'id' | 'createdAt'>): Promise<boolean> => {
     const templateWithId: Template = {
       ...newTemplate,
       id: Math.random().toString(36).substring(2, 11) + Date.now().toString(36),
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      isTrashed: 0
     };
     
     try {
       const generated = await createTemplate(templateWithId);
       
-      // Update with server-generated URLs if auto-generation occurred
       if (generated.imageUrl) templateWithId.imageUrl = generated.imageUrl;
       if (generated.demoUrl) templateWithId.demoUrl = generated.demoUrl;
       
@@ -66,13 +74,35 @@ export default function App() {
 
   const handleDeleteTemplate = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this template?')) {
+    
+    if (isTrashView) {
+      // Hard Delete
+      if (confirm('WARNING: This will permanently delete this template AND wipe the generated Bricks Page from your WordPress Render Server. This cannot be undone. Are you sure?')) {
+        try {
+          await permanentDeleteTemplate(id);
+          setTemplates(prev => prev.filter(t => t.id !== id));
+        } catch (err) {
+          alert('Failed to permanently delete template');
+        }
+      }
+    } else {
+      // Soft Delete (Trash)
       try {
         await removeTemplate(id);
-        setTemplates(prev => prev.filter(t => t.id !== id));
+        setTemplates(prev => prev.map(t => t.id === id ? { ...t, isTrashed: 1 } : t));
       } catch (err) {
-        alert('Failed to delete template from database');
+        alert('Failed to move template to trash');
       }
+    }
+  };
+
+  const handleRestoreTemplate = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await restoreTemplate(id);
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, isTrashed: 0 } : t));
+    } catch (err) {
+      alert('Failed to restore template');
     }
   };
 
@@ -118,6 +148,8 @@ export default function App() {
           selectedCategory={selectedCategory}
           onSelectWebsite={setSelectedWebsite}
           onSelectCategory={setSelectedCategory}
+          isTrashView={isTrashView}
+          onToggleTrash={() => setIsTrashView(!isTrashView)}
         />
         {isLoading ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
@@ -135,6 +167,8 @@ export default function App() {
             templates={filteredTemplates} 
             onSelectTemplate={setActiveTemplate} 
             onDeleteTemplate={handleDeleteTemplate}
+            onRestoreTemplate={handleRestoreTemplate}
+            isTrashView={isTrashView}
           />
         )}
       </main>
