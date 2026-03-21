@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 import type { Template } from '../data/mockData';
 
 interface AddTemplateModalProps {
@@ -19,11 +19,14 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
 
   const categories = ['Hero', 'Pricing', 'Grid', 'Forms', 'Features', 'Testimonials', 'Header', 'Footer'];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.content) return;
-    onAdd(formData);
-    onClose();
+    setIsSubmitting(true);
+    await onAdd(formData);
+    setIsSubmitting(false); // In case it fails, we stop loading
   };
 
   return (
@@ -89,28 +92,33 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Preview Image URL</label>
-              <input 
-                type="url" 
-                placeholder="https://example.com/image.jpg"
-                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                value={formData.imageUrl}
-                onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-              />
+          <details style={{ width: '100%' }}>
+            <summary style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', cursor: 'pointer', outline: 'none' }}>
+              Manual Overrides (Skip if using Auto-Generate)
+            </summary>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Preview Image URL</label>
+                <input 
+                  type="url" 
+                  placeholder="https://example.com/image.jpg"
+                  style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
+                  value={formData.imageUrl}
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Live Demo URL</label>
+                <input 
+                  type="url" 
+                  placeholder="https://example.com/demo"
+                  style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
+                  value={formData.demoUrl}
+                  onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
+                />
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Live Demo URL</label>
-              <input 
-                type="url" 
-                placeholder="https://example.com/demo"
-                style={{ padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-color)', border: '1px solid var(--border-color)', color: '#fff' }}
-                value={formData.demoUrl}
-                onChange={e => setFormData({ ...formData, demoUrl: e.target.value })}
-              />
-            </div>
-          </div>
+          </details>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Bricks Template Code (JSON)</label>
@@ -134,21 +142,31 @@ export function AddTemplateModal({ onAdd, onClose }: AddTemplateModalProps) {
 
           <button 
             type="submit" 
+            disabled={isSubmitting}
             className="glass-pill" 
             style={{ 
               marginTop: '1rem', 
               padding: '1rem', 
-              background: 'var(--accent-glow)', 
+              background: isSubmitting ? 'var(--bg-secondary)' : 'var(--accent-glow)', 
               color: '#fff', 
               border: 'none', 
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem'
+              gap: '0.5rem',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
             }}
           >
-            <Plus size={20} /> Add Template
+            {isSubmitting ? (
+              <>
+                <Loader2 className="spin" size={20} /> Generating Preview & Demo ✨
+              </>
+            ) : (
+              <>
+                <Plus size={20} /> Add Template
+              </>
+            )}
           </button>
         </form>
       </div>

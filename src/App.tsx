@@ -41,7 +41,7 @@ export default function App() {
     });
   }, [templates, selectedWebsite, selectedCategory]);
 
-  const handleAddTemplate = async (newTemplate: Omit<Template, 'id' | 'createdAt'>) => {
+  const handleAddTemplate = async (newTemplate: Omit<Template, 'id' | 'createdAt'>): Promise<boolean> => {
     const templateWithId: Template = {
       ...newTemplate,
       id: Math.random().toString(36).substring(2, 11) + Date.now().toString(36),
@@ -49,11 +49,18 @@ export default function App() {
     };
     
     try {
-      await createTemplate(templateWithId);
+      const generated = await createTemplate(templateWithId);
+      
+      // Update with server-generated URLs if auto-generation occurred
+      if (generated.imageUrl) templateWithId.imageUrl = generated.imageUrl;
+      if (generated.demoUrl) templateWithId.demoUrl = generated.demoUrl;
+      
       setTemplates(prev => [templateWithId, ...prev]);
       setIsAddModalOpen(false);
+      return true;
     } catch (err) {
       alert('Failed to save template to database');
+      return false;
     }
   };
 

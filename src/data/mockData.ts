@@ -40,13 +40,14 @@ export const fetchTemplates = async (): Promise<Template[]> => {
   return res.json();
 };
 
-export const createTemplate = async (template: Template): Promise<void> => {
+export const createTemplate = async (template: Template): Promise<{id: string, imageUrl: string, demoUrl: string}> => {
   const res = await fetch(`${API_URL}/api/templates`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(template)
   });
   if (!res.ok) throw new Error('Failed to save template');
+  return res.json();
 };
 
 export const removeTemplate = async (id: string): Promise<void> => {

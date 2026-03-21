@@ -46,16 +46,52 @@ app.get('/api/templates', (req, res) => {
   }
 });
 
-app.post('/api/templates', (req, res) => {
-  const { id, title, category, website, content, imageUrl, demoUrl, createdAt } = req.body;
+app.post('/api/templates', async (req, res) => {
+  let { id, title, category, website, content, imageUrl, demoUrl, createdAt } = req.body;
   try {
+    const wpRenderUrl = process.env.WP_RENDER_URL;
+    const wpRenderSecret = process.env.WP_RENDER_SECRET || 'default-secret';
+    
+    // Auto-generate preview & demo if the Render Server is configured
+    if (wpRenderUrl) {
+      console.log('Generating automated demo via Render Server...');
+      const wpResponse = await fetch(wpRenderUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, secret: wpRenderSecret })
+      });
+      
+      const wpData = await wpResponse.json();
+      
+      if (wpData.success && wpData.url) {
+        demoUrl = wpData.url;
+        console.log('Demo generated:', demoUrl);
+        
+        // 2. Generate Screenshot using Microlink
+        console.log('Generating automated screenshot...');
+        const microlinkUrl = `https://api.microlink.io/?url=${encodeURIComponent(demoUrl)}&screenshot=true&meta=false&waitFor=3000`;
+        const microResponse = await fetch(microlinkUrl);
+        const microData = await microResponse.json();
+        
+        if (microData.status === 'success' && microData.data?.screenshot?.url) {
+          imageUrl = microData.data.screenshot.url;
+          console.log('Screenshot generated:', imageUrl);
+        }
+      } else {
+        console.error('WP Render Server returned an error:', wpData);
+      }
+    }
+
     const stmt = db.prepare(`
       INSERT OR REPLACE INTO templates (id, title, category, website, content, imageUrl, demoUrl, createdAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(id, title, category, website, content, imageUrl, demoUrl, createdAt);
-    res.status(201).json({ id });
+    
+    // Return the updated URLs to the frontend so it can update its local state
+    res.status(201).json({ id, imageUrl, demoUrl });
   } catch (error) {
+    console.error('Template Creation Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
