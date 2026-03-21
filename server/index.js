@@ -65,18 +65,8 @@ app.post('/api/templates', async (req, res) => {
       
       if (wpData.success && wpData.url) {
         demoUrl = wpData.url;
+        imageUrl = wpData.url;
         console.log('Demo generated:', demoUrl);
-        
-        // 2. Generate Screenshot using Microlink
-        console.log('Generating automated screenshot...');
-        const microlinkUrl = `https://api.microlink.io/?url=${encodeURIComponent(demoUrl)}&screenshot=true&meta=false&waitFor=3000`;
-        const microResponse = await fetch(microlinkUrl);
-        const microData = await microResponse.json();
-        
-        if (microData.status === 'success' && microData.data?.screenshot?.url) {
-          imageUrl = microData.data.screenshot.url;
-          console.log('Screenshot generated:', imageUrl);
-        }
       } else {
         console.error('WP Render Server returned an error:', wpData);
       }

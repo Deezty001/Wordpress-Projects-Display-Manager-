@@ -65,10 +65,21 @@ export function TemplateCard({ template, onClick, onDelete }: TemplateCardProps)
 
       {/* Image Container */}
       <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
-        <img 
-          src={template.imageUrl} 
-          alt={template.title} 
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
+        <iframe 
+          src={template.demoUrl}
+          title={template.title}
+          loading="lazy"
+          scrolling="no"
+          style={{ 
+            width: '1280px', 
+            height: '880px', 
+            border: 'none',
+            transform: isHovered ? 'scale(0.26)' : 'scale(0.25)', 
+            transformOrigin: 'top left',
+            pointerEvents: 'none',
+            transition: 'transform 0.5s ease, opacity 0.5s ease',
+            opacity: isHovered ? 0.5 : 1
+          }}
         />
         
         {/* Overlay on hover */}
