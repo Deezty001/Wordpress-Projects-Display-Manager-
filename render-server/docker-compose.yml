@@ -12,8 +12,8 @@ services:
       WORDPRESS_DB_NAME: render_db
     volumes:
       - wp_data:/var/www/html
-      # This automatically mounts our custom plugin so you don't have to upload it!
       - ./bricks-renderer.php:/var/www/html/wp-content/plugins/bricks-renderer/bricks-renderer.php
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     depends_on:
       - db
     restart: unless-stopped
