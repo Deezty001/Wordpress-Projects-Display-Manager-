@@ -32,7 +32,7 @@ export const mockTemplates: Template[] = [
   }
 ];
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:8000';
+const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3000';
 
 export const fetchTemplates = async (): Promise<Template[]> => {
   const res = await fetch(`${API_URL}/api/templates`);
