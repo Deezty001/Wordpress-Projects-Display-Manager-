@@ -14,16 +14,26 @@ add_action('rest_api_init', function () {
         'callback' => 'br_generate_page',
         'permission_callback' => 'br_verify_secret_token'
     ));
+
+    register_rest_route('bricks-render/v1', '/delete', array(
+        'methods' => 'DELETE',
+        'callback' => 'br_delete_page',
+        'permission_callback' => 'br_verify_secret_token'
+    ));
 });
 
 function br_verify_secret_token($request) {
-    if ($request->get_method() === 'GET') return true; // Preview parameters are GET
+    if ($request->get_method() === 'GET') return true; 
 
     $secret = $request->get_param('secret');
+    $header_key = $request->get_header('X-API-Key');
     $expected_secret = defined('BRICKS_RENDER_SECRET') ? BRICKS_RENDER_SECRET : null;
 
-    // Fail if secret is missing or doesn't match
-    if (empty($expected_secret) || $secret !== $expected_secret) {
+    if (empty($expected_secret)) {
+        return new WP_Error('unauthorized', 'Unauthorized: Secret not configured on server.', array('status' => 401));
+    }
+
+    if ($secret !== $expected_secret && $header_key !== $expected_secret) {
         return new WP_Error('unauthorized', 'Unauthorized: Invalid or missing secret token.', array('status' => 401));
     }
     return true;
@@ -97,6 +107,12 @@ function br_generate_page($request) {
             
             if (!empty($classes_raw)) {
                 $classes_array = array_filter(explode(' ', $classes_raw));
+                // Harden: Only allow alphanumeric and hyphens in class names
+                $classes_array = array_map(function($c) {
+                    return preg_replace('/[^a-zA-Z0-9-]/', '', $c);
+                }, $classes_array);
+                $classes_array = array_filter($classes_array);
+
                 if (!empty($classes_array)) {
                     printf(
                         '<script id="bv-class-injection">window.addEventListener("DOMContentLoaded", () => {
@@ -118,4 +134,28 @@ function br_generate_page($request) {
         'url'     => get_permalink($post_id)
     ));
 }
+
+function br_delete_page($request) {
+    $url = $request->get_param('url');
+    if (empty($url)) {
+        return new WP_Error('missing_url', 'URL is required', array('status' => 400));
+    }
+
+    $post_id = url_to_postid($url);
+    if (!$post_id) {
+        return new WP_Error('not_found', 'Page not found for the given URL', array('status' => 404));
+    }
+
+    $deleted = wp_delete_post($post_id, true); // Force delete (skip trash)
+
+    if (!$deleted) {
+        return new WP_Error('delete_failed', 'Failed to delete page', array('status' => 500));
+    }
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'message' => 'Page deleted successfully'
+    ));
+}
+
 

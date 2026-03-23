@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Layers, Plus, Loader2, AlertCircle, Search } from 'lucide-react';
-import { fetchTemplates, createTemplate, removeTemplate, restoreTemplate, permanentDeleteTemplate } from '../data/mockData';
+import { fetchTemplates, createTemplate, removeTemplate, restoreTemplate, permanentDeleteTemplate, generateId } from '../data/apiClient';
 import { Sidebar } from '../components/Sidebar';
 import { TemplateGrid } from '../components/TemplateGrid';
 import { TemplateModal } from '../components/TemplateModal';
 import { AddTemplateModal } from '../components/AddTemplateModal';
-import type { Template } from '../data/mockData';
+import type { Template } from '../data/apiClient';
 
 export function Library() {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -55,7 +55,7 @@ export function Library() {
   const handleAddTemplate = async (newTemplate: Omit<Template, 'id' | 'createdAt'>): Promise<boolean> => {
     const templateWithId: Template = {
       ...newTemplate,
-      id: Math.random().toString(36).substring(2, 11) + Date.now().toString(36),
+      id: generateId(),
       createdAt: Date.now(),
       isTrashed: 0
     };

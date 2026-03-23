@@ -10,7 +10,14 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 8080;
-const API_KEY = process.env.API_KEY || 'dev-key-123'; // Secure this in production!
+const API_KEY = process.env.API_KEY;
+
+if (!API_KEY && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: API_KEY environment variable is not set in production!');
+  process.exit(1);
+}
+const DEV_API_KEY = 'dev-key-123';
+const EFFECTIVE_API_KEY = API_KEY || DEV_API_KEY;
 
 // Database setup
 const dataDir = join(__dirname, '../data');
@@ -44,7 +51,7 @@ try {
 // Security Middleware: API Key Check
 const authenticate = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.query.apiKey;
-  if (apiKey !== API_KEY) {
+  if (!apiKey || apiKey !== EFFECTIVE_API_KEY) {
     return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
   }
   next();
@@ -95,11 +102,23 @@ app.post('/api/templates', authenticate, async (req, res) => {
       }
     }
 
+    // Input Validation
+    if (!id || !title || !content) {
+      return res.status(400).json({ error: 'Missing required fields: id, title, and content are required' });
+    }
+
+    // Check if we are overwriting an existing template without proper authorization (if needed)
+    // For now, we'll allow it but log it
+    const existing = db.prepare('SELECT id FROM templates WHERE id = ?').get(id);
+    if (existing) {
+      console.log(`Updating existing template: ${id}`);
+    }
+
     const stmt = db.prepare(`
       INSERT OR REPLACE INTO templates (id, title, category, website, content, imageUrl, demoUrl, createdAt, isTrashed)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
     `);
-    stmt.run(id, title, category, website, content, imageUrl, demoUrl, createdAt);
+    stmt.run(id, title.substring(0, 255), category, website, content, imageUrl, demoUrl, createdAt || Date.now());
     
     // Return the updated URLs to the frontend so it can update its local state
     res.status(201).json({ id, imageUrl, demoUrl });
@@ -150,7 +169,7 @@ app.delete('/api/templates/:id/permanent', authenticate, async (req, res) => {
           method: 'DELETE',
           headers: { 
             'Content-Type': 'application/json',
-            'X-API-Key': process.env.WP_RENDER_SECRET || 'default-secret' // Forward auth to renderer
+            'X-API-Key': wpRenderSecret
           },
           body: JSON.stringify({ url: template.demoUrl })
         });

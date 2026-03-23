@@ -10,6 +10,13 @@ export interface Template {
   isTrashed?: number;
 }
 
+export const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+};
+
 export const mockTemplates: Template[] = [
   {
     id: '1',
