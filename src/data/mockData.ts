@@ -36,6 +36,7 @@ export const mockTemplates: Template[] = [
 ];
 
 const API_URL = import.meta.env.PROD ? '' : 'http://localhost:8080';
+const API_KEY = import.meta.env.VITE_API_KEY || 'dev-key-123';
 
 export const fetchTemplates = async (): Promise<Template[]> => {
   const res = await fetch(`${API_URL}/api/templates`);
@@ -46,7 +47,10 @@ export const fetchTemplates = async (): Promise<Template[]> => {
 export const createTemplate = async (template: Template): Promise<{id: string, imageUrl: string, demoUrl: string}> => {
   const res = await fetch(`${API_URL}/api/templates`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY
+    },
     body: JSON.stringify(template)
   });
   if (!res.ok) throw new Error('Failed to save template');
@@ -56,7 +60,8 @@ export const createTemplate = async (template: Template): Promise<{id: string, i
 // Soft Delete (Moves to Trash)
 export const removeTemplate = async (id: string): Promise<void> => {
   const res = await fetch(`${API_URL}/api/templates/${id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: { 'X-API-Key': API_KEY }
   });
   if (!res.ok) throw new Error('Failed to trash template');
 };
@@ -64,7 +69,8 @@ export const removeTemplate = async (id: string): Promise<void> => {
 // Restore from Trash
 export const restoreTemplate = async (id: string): Promise<void> => {
   const res = await fetch(`${API_URL}/api/templates/${id}/restore`, {
-    method: 'POST'
+    method: 'POST',
+    headers: { 'X-API-Key': API_KEY }
   });
   if (!res.ok) throw new Error('Failed to restore template');
 };
@@ -72,7 +78,8 @@ export const restoreTemplate = async (id: string): Promise<void> => {
 // Permanently Delete (Wipes SQLite + WordPress Render Page)
 export const permanentDeleteTemplate = async (id: string): Promise<void> => {
   const res = await fetch(`${API_URL}/api/templates/${id}/permanent`, {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: { 'X-API-Key': API_KEY }
   });
   if (!res.ok) throw new Error('Failed to permanently delete template');
 };

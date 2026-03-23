@@ -10,6 +10,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 8080;
+const API_KEY = process.env.API_KEY || 'dev-key-123'; // Secure this in production!
 
 // Database setup
 const dataDir = join(__dirname, '../data');
@@ -40,7 +41,21 @@ try {
   // Ignore, column exists
 }
 
-app.use(cors());
+// Security Middleware: API Key Check
+const authenticate = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'] || req.query.apiKey;
+  if (apiKey !== API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
+  }
+  next();
+};
+
+const allowedOrigin = process.env.FRONTEND_URL || '*';
+app.use(cors({
+    origin: allowedOrigin === '*' ? '*' : allowedOrigin,
+    methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'X-API-Key']
+}));
 app.use(express.json({ limit: '50mb' }));
 
 // API Endpoints
@@ -49,11 +64,12 @@ app.get('/api/templates', (req, res) => {
     const templates = db.prepare('SELECT * FROM templates ORDER BY createdAt DESC').all();
     res.json(templates);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Fetch Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.post('/api/templates', async (req, res) => {
+app.post('/api/templates', authenticate, async (req, res) => {
   let { id, title, category, website, content, imageUrl, demoUrl, createdAt } = req.body;
   try {
     const wpRenderUrl = process.env.WP_RENDER_URL;
@@ -94,29 +110,31 @@ app.post('/api/templates', async (req, res) => {
 });
 
 // Soft Delete (Trash)
-app.delete('/api/templates/:id', (req, res) => {
+app.delete('/api/templates/:id', authenticate, (req, res) => {
   const { id } = req.params;
   try {
     db.prepare('UPDATE templates SET isTrashed = 1 WHERE id = ?').run(id);
     res.json({ message: 'Sent to trash' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Trash Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 // Restore from Trash
-app.post('/api/templates/:id/restore', (req, res) => {
+app.post('/api/templates/:id/restore', authenticate, (req, res) => {
   const { id } = req.params;
   try {
     db.prepare('UPDATE templates SET isTrashed = 0 WHERE id = ?').run(id);
     res.json({ message: 'Restored successfully' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Restore Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 // Permanent Delete
-app.delete('/api/templates/:id/permanent', async (req, res) => {
+app.delete('/api/templates/:id/permanent', authenticate, async (req, res) => {
   const { id } = req.params;
   try {
     // Look up the URL first
@@ -130,7 +148,10 @@ app.delete('/api/templates/:id/permanent', async (req, res) => {
         const deleteUrl = wpRenderUrl.replace('/generate', '/delete');
         await fetch(deleteUrl, {
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-API-Key': process.env.WP_RENDER_SECRET || 'default-secret' // Forward auth to renderer
+          },
           body: JSON.stringify({ url: template.demoUrl })
         });
       } catch (err) {
@@ -141,7 +162,8 @@ app.delete('/api/templates/:id/permanent', async (req, res) => {
     db.prepare('DELETE FROM templates WHERE id = ?').run(id);
     res.json({ message: 'Permanently deleted' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Permanent Delete Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
