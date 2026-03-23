@@ -37,8 +37,12 @@ export function AuthorizeModal({ handshakeId, onClose, onSuccess }: AuthorizeMod
         body: JSON.stringify({ handshakeId })
       });
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.redirectUrl) {
         onSuccess(data.siteName);
+        // Instant redirect back to WordPress
+        setTimeout(() => {
+          window.location.href = data.redirectUrl;
+        }, 1500);
       } else {
         setError(data.error || 'Authorization failed');
       }

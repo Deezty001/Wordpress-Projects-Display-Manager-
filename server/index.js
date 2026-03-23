@@ -202,8 +202,9 @@ app.post('/api/remote/authorize', (req, res) => {
     
     db.prepare('DELETE FROM handshake_requests WHERE id = ?').run(handshakeId);
 
-    // Notify the WP site? (Omitted for simplicity, WP usually polls or expects token in redirect)
-    res.json({ success: true, siteName: request.siteName, token });
+    // Return success AND the redirect URL for the WP admin page
+    const redirectUrl = `${request.siteUrl}/wp-admin/admin.php?page=bricks-vault-connector&token=${token}`;
+    res.json({ success: true, siteName: request.siteName, token, redirectUrl });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
