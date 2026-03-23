@@ -31,8 +31,6 @@ db.exec(`
     demoUrl TEXT,
     createdAt INTEGER NOT NULL
   );
-
-  );
 `);
 
 // Add isTrashed column if missing
