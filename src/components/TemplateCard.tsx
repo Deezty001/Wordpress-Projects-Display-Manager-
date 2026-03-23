@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Eye, Globe, Tag, Copy, Trash2, Check, RefreshCw, AlertTriangle, Download } from 'lucide-react';
-import type { Template } from '../data/mockData';
+import type { Template } from '../data/apiClient';
 import { copyToClipboard } from '../utils/clipboard';
 import { downloadTemplate } from '../utils/download';
 

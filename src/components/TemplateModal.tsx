@@ -1,5 +1,5 @@
 import { X, Monitor, Tablet, Smartphone, Shield, Download, Copy, Check } from 'lucide-react';
-import type { Template } from '../data/mockData';
+import type { Template } from '../data/apiClient';
 import { transformBricksJson } from '../utils/bricksTransformer';
 import { copyToClipboard } from '../utils/clipboard';
 import { downloadTemplate } from '../utils/download';

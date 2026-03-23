@@ -1,4 +1,4 @@
-import type { Template } from '../data/mockData';
+import type { Template } from '../data/apiClient';
 import { TemplateCard } from './TemplateCard';
 
 interface TemplateGridProps {
