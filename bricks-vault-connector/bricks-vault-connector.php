@@ -18,6 +18,7 @@ class Bricks_Vault_Connector {
         $this->vault_url = get_option('bricks_vault_url', 'http://localhost:8080');
 
         add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('admin_notices', [$this, 'show_admin_notices']);
         add_action('admin_init', [$this, 'handle_handshake_callback']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_bricks_scripts']);
         
@@ -34,6 +35,15 @@ class Bricks_Vault_Connector {
             [$this, 'render_admin_page'],
             'dashicons-cloud-upload'
         );
+    }
+
+    public function show_admin_notices() {
+        if (isset($_GET['connected']) && $_GET['connected'] == 1) {
+            echo '<div class="notice notice-success is-dismissible"><p><strong>Success!</strong> Your site is now linked to the Bricks Vault.</p></div>';
+        }
+        if (isset($_GET['disconnected']) && $_GET['disconnected'] == 1) {
+            echo '<div class="notice notice-info is-dismissible"><p>Site disconnected from the Bricks Vault.</p></div>';
+        }
     }
 
     public function render_admin_page() {
@@ -106,7 +116,7 @@ class Bricks_Vault_Connector {
         // 3. Disconnect
         if (isset($_POST['disconnect_vault'])) {
             delete_option($this->token_option);
-            wp_redirect(admin_url('admin.php?page=bricks-vault-connector'));
+            wp_redirect(admin_url('admin.php?page=bricks-vault-connector&disconnected=1'));
             exit;
         }
     }
