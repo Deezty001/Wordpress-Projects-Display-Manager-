@@ -10,14 +10,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 8080;
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY && process.env.NODE_ENV === 'production') {
-  console.error('FATAL: API_KEY environment variable is not set in production!');
-  process.exit(1);
-}
-const DEV_API_KEY = 'dev-key-123';
-const EFFECTIVE_API_KEY = API_KEY || DEV_API_KEY;
+// API_KEY Check Removed by Request
 
 // Database setup
 const dataDir = join(__dirname, '../data');
@@ -48,12 +41,9 @@ try {
   // Ignore, column exists
 }
 
-// Security Middleware: API Key Check
+// Security Middleware: API Key Check BYPASSED
 const authenticate = (req, res, next) => {
-  const apiKey = req.headers['x-api-key'] || req.query.apiKey;
-  if (!apiKey || apiKey !== EFFECTIVE_API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
-  }
+  // Authentication disabled
   next();
 };
 
